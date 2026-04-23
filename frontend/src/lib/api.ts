@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://aiteacher-roan.vercel.app/_/backend';
+function getApiUrl(): string {
+  // Development
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:8000';
+  }
+  // Production — Vercel experimentalServices backend prefix
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/_/backend`;
+  }
+  return 'https://aiteacher-roan.vercel.app/_/backend';
+}
+
+const API_URL = getApiUrl();
 
 const api = axios.create({
   baseURL: API_URL,
