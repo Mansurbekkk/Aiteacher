@@ -1,13 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.database import engine, Base
 from app.models import user, course, chat  # noqa: F401
 from app.routers import auth, courses, chat as chat_router, users
-# DB jadvallarini yaratish — xato bo'lsa ham davom etsin
-try:
-    Base.metadata.create_all(bind=engine)
-except Exception as e:
-    print(f"DB create_all xatosi: {e}")
 
 app = FastAPI(
     title="AITeacher Platform",
@@ -22,6 +18,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Global xato handler — debug uchun
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc), "type": type(exc).__name__}
+    )
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(courses.router, prefix="/api/courses", tags=["Courses"])
@@ -43,3 +47,13 @@ def health():
         return {"status": "healthy", "db": "connected"}
     except Exception as e:
         return {"status": "unhealthy", "db": str(e)}
+
+
+@app.post("/api/setup")
+def setup_db():
+    """Jadvallarni yaratish — bir marta ishlatiladi"""
+    try:
+        Base.metadata.create_all(bind=engine)
+        return {"status": "ok", "message": "Jadvallar yaratildi"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
