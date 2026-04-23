@@ -3,7 +3,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.config import settings
 
-engine = create_engine(settings.DATABASE_URL)
+# Neon.tech va boshqa cloud PostgreSQL uchun SSL majburiy
+connect_args = {}
+if "neon.tech" in settings.DATABASE_URL or "sslmode" not in settings.DATABASE_URL:
+    if "neon.tech" in settings.DATABASE_URL:
+        connect_args = {"sslmode": "require"}
+
+engine = create_engine(
+    settings.DATABASE_URL,
+    connect_args=connect_args,
+    pool_pre_ping=True,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
