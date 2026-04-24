@@ -56,6 +56,15 @@ def setup_db():
     try:
         Base.metadata.create_all(bind=engine)
 
+        # youtube_url ustunini qo'shish (agar yo'q bo'lsa)
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            try:
+                conn.execute(text("ALTER TABLE courses ADD COLUMN IF NOT EXISTS youtube_url VARCHAR"))
+                conn.commit()
+            except Exception:
+                conn.rollback()
+
         # Admin foydalanuvchi yaratish
         from app.database import SessionLocal
         from app.models.user import User
