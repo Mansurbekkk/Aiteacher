@@ -52,9 +52,41 @@ def health():
 
 @app.post("/api/setup")
 def setup_db():
-    """Jadvallarni yaratish — bir marta ishlatiladi"""
+    """Jadvallarni yaratish va admin foydalanuvchi qo'shish"""
     try:
         Base.metadata.create_all(bind=engine)
-        return {"status": "ok", "message": "Jadvallar yaratildi"}
+
+        # Admin foydalanuvchi yaratish
+        from app.database import SessionLocal
+        from app.models.user import User
+        from app.services.auth_service import get_password_hash
+        db = SessionLocal()
+        try:
+            existing = db.query(User).filter(User.email == "admin@aiteacher.uz").first()
+            if not existing:
+                admin_user = User(
+                    username="admin",
+                    email="admin@aiteacher.uz",
+                    hashed_password=get_password_hash("admin123"),
+                    full_name="Admin",
+                    is_admin=True,
+                    is_active=True,
+                )
+                db.add(admin_user)
+                db.commit()
+                admin_created = True
+            else:
+                # Mavjud bo'lsa is_admin=True qilish
+                existing.is_admin = True
+                db.commit()
+                admin_created = False
+        finally:
+            db.close()
+
+        return {
+            "status": "ok",
+            "message": "Jadvallar yaratildi",
+            "admin_created": admin_created
+        }
     except Exception as e:
         return {"status": "error", "detail": str(e)}
