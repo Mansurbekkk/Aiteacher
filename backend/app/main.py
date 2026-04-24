@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.database import engine, Base
 from app.models import user, course, chat  # noqa: F401
-from app.routers import auth, courses, chat as chat_router, users
+from app.routers import auth, courses, chat as chat_router, users, admin
 
 app = FastAPI(
     title="AITeacher Platform",
@@ -31,6 +31,7 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(courses.router, prefix="/api/courses", tags=["Courses"])
 app.include_router(chat_router.router, prefix="/api/chat", tags=["AI Chat"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
+app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 
 
 @app.get("/")

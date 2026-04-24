@@ -35,8 +35,9 @@ class CourseBase(BaseModel):
     duration_hours: float = 0
     is_free: bool = True
     icon: Optional[str] = None
-    color_from: str = "#9333EA"
-    color_to: str = "#06B6D4"
+    youtube_url: Optional[str] = None
+    color_from: str = "#00C2D4"
+    color_to: str = "#00E676"
 
 
 class CourseCreate(CourseBase):

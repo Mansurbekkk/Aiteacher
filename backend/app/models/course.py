@@ -26,8 +26,9 @@ class Course(Base):
     is_free = Column(Boolean, default=True)
     order_index = Column(Integer, default=0)
     icon = Column(String, nullable=True)
-    color_from = Column(String, default="#9333EA")
-    color_to = Column(String, default="#06B6D4")
+    youtube_url = Column(String, nullable=True)
+    color_from = Column(String, default="#00C2D4")
+    color_to = Column(String, default="#00E676")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
